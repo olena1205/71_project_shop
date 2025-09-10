@@ -47,6 +47,7 @@ public class Test {
 //                    new Product(2, "Виноград", 175, true),
 //                    new Product(3, "Апельсин", 105, true)
 //            );
+
 //            mapper.writeValue(file, products);
 //
 //        } catch (IOException e) {
