@@ -70,53 +70,59 @@ public class ProductService {
             throw new ProductUpdateException("Продукт не может быть null");
         }
 
-        if (product.getPrice() <= 0){
+        if (product.getPrice() <= 0) {
             throw new ProductUpdateException("Цена продукта должна быть положительной");
         }
 
         repository.update(product);
     }
-//   Удалить продукт из базы данных по его идентификатору.
+
+    //   Удалить продукт из базы данных по его идентификатору.
     // По требованию должно происходить soft удаление - изменение статуса активности продукта
     public void deleteById(int id) throws IOException, ProductNotFoundException {
         getActiveProductById(id).setActive(false);
     }
-//   Удалить продукт из базы данных по его наименованию.
+
+    //   Удалить продукт из базы данных по его наименованию.
     public void deleteByTitle(String title) throws IOException {
         getAllActiveProducts()
                 .stream()
-                .filter(x-> x.getTitle().equals(title))
-                .forEach(x-> x.setActive(false));
+                .filter(x -> x.getTitle().equals(title))
+                .forEach(x -> x.setActive(false));
     }
-//   Восстановить удалённый продукт в базе данных по его идентификатору.
+
+    //   Восстановить удалённый продукт в базе данных по его идентификатору.
     public void restoreById(int id) throws IOException, ProductNotFoundException {
         Product product = repository.findById(id);
 
-        if (product != null){
+        if (product != null) {
             product.setActive(true);
         } else {
             throw new ProductNotFoundException(id);
         }
     }
-//   Вернуть общее количество продуктов в базе данных (активных).
+
+    //   Вернуть общее количество продуктов в базе данных (активных).
     public int getActiveProductsCount() throws IOException {
         return getAllActiveProducts().size();
     }
-//   Вернуть суммарную стоимость всех продуктов в базе данных (активных).
+
+    //   Вернуть суммарную стоимость всех продуктов в базе данных (активных).
     public double getActiveProductsTotalCost() throws IOException {
         return getAllActiveProducts()
                 .stream()
                 .mapToDouble(Product::getPrice)
                 .sum();
     }
-//   Вернуть среднюю стоимость продукта в базе данных (из активных)
+
+    //   Вернуть среднюю стоимость продукта в базе данных (из активных)
     public double getActiveProductsAveragePrice() throws IOException {
         int productCount = getActiveProductsCount();
 
-        if (productCount == 0){
+        if (productCount == 0) {
             return 0.0;
         }
 
-        return getActiveProductsTotalCost()/productCount;
+        return getActiveProductsTotalCost() / productCount;
     }
 }
