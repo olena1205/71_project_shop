@@ -64,21 +64,29 @@ public class CustomerService {
         if (name == null || name.trim().isEmpty()) {
             throw new CustomerSaveException("Имя покупателя не может быть пустым");
         }
-
+        customer.setActive(true);
         repository.update(customer);
     }
 
     //    Удалить покупателя из базы данных по его идентификатору.
     public void deleteById(int id) throws IOException, CustomerNotFoundException {
-        getActiveCustomerById(id).setActive(false);
+        Customer customer = getActiveCustomerById(id);
+        customer.setActive(false);
+        repository.update(customer);
     }
 
     //    Удалить покупателя из базы данных по его имени.
-    public void deleteByName(String name) throws IOException {
-        getAllActiveCustomers()
+    public void deleteByName(String name) throws IOException, CustomerNotFoundException {
+        Customer customer = getAllActiveCustomers()
                 .stream()
                 .filter(x -> x.getName().equals(name))
-                .forEach(x -> x.setActive(false));
+                .peek(x -> x.setActive(false))
+                .findFirst()
+                .orElseThrow(
+                        () -> new CustomerNotFoundException(name)
+                );
+        repository.update(customer);
+
     }
 
     //    Восстановить удалённого покупателя в базе данных по его идентификатору.
@@ -87,6 +95,7 @@ public class CustomerService {
 
         if (customer != null) {
             customer.setActive(true);
+            repository.update(customer);
         } else {
             throw new CustomerNotFoundException(id);
         }
@@ -123,6 +132,7 @@ public class CustomerService {
         Customer customer = getActiveCustomerById(customerId);
         Product product = productService.getActiveProductById(productId);
         customer.getProducts().add(product);
+        repository.update(customer);
     }
 
     //    Удалить товар из корзины покупателя по идентификатору
@@ -130,11 +140,14 @@ public class CustomerService {
         Customer customer = getActiveCustomerById(customerId);
         Product product = productService.getActiveProductById(productId);
         customer.getProducts().remove(product);
+        repository.update(customer);
     }
 
-//    Полностью очистить корзину покупателя по его идентификатору (если он активен)
+    //    Полностью очистить корзину покупателя по его идентификатору (если он активен)
     public void clearCustomerCart(int id) throws IOException, CustomerNotFoundException {
-        getActiveCustomerById(id).getProducts().clear();
+        Customer customer = getActiveCustomerById(id);
+        customer.getProducts().clear();
+        repository.update(customer);
     }
 }
 

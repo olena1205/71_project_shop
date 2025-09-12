@@ -13,4 +13,9 @@
   "title" : "Персик",
   "price" : 190.0,
   "active" : true
+}, {
+  "id" : 5,
+  "title" : "Киви",
+  "price" : 130.0,
+  "active" : false
 } ]
